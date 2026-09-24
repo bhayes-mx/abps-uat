@@ -402,13 +402,11 @@ class Component extends DCLogic {
       return;
     }
     try {
-      const res = await fetch(this.url(), { cache: 'no-store', redirect: 'follow' });
-      const data = await res.json();
-      if (!data.ok) throw new Error(data.error || 'bad response');
+      const data = await this.call({ cache: 'no-store', redirect: 'follow' });
       if (this._dead) return;
       this.setState({ ...this.ingest(data), sync: this.queueLoad().length ? 'saving' : 'ok', lastSync: new Date(), error: '' });
     } catch (e) {
-      this.setState({ sync: 'offline', error: 'Could not reach the results sheet. Your changes are kept and will send when the connection returns.' });
+      this.setState({ sync: 'offline', error: e.message });
     }
   }
 
@@ -436,6 +434,24 @@ class Component extends DCLogic {
     this.flush();
   }
 
+  // One request to the Apps Script, with a plain-English reason on failure.
+  // e.server = true means the script answered but refused the request.
+  async call(opts) {
+    let res, text;
+    try { res = await fetch(this.url(), opts); text = await res.text(); }
+    catch (e) { throw new Error('The results sheet could not be reached (network or browser blocked the request). Check that the Apps Script deployment\'s "Who has access" is set to Anyone.'); }
+    let data;
+    try { data = JSON.parse(text); }
+    catch (e) {
+      const login = /accounts\.google\.com|ServiceLogin|<title>Sign in/i.test(text);
+      throw new Error(login
+        ? 'The results sheet asked for a Google sign-in. In Apps Script: Deploy → Manage deployments → edit → Who has access: Anyone → Version: New version → Deploy.'
+        : 'The results sheet sent back an error page instead of data (HTTP ' + res.status + '). Open the /exec link in a browser to see the Apps Script error.');
+    }
+    if (!data.ok) { const err = new Error('The results sheet reported: ' + (data.error || 'unknown error')); err.server = true; throw err; }
+    return data;
+  }
+
   async flush() {
     if (this._flushing || !this.url()) return;
     this._flushing = true;
@@ -443,12 +459,18 @@ class Component extends DCLogic {
     while (q.length) {
       this.setState({ sync: 'saving' });
       try {
-        const res = await fetch(this.url(), { method: 'POST', body: JSON.stringify(q[0]), headers: { 'Content-Type': 'text/plain;charset=utf-8' }, redirect: 'follow' });
-        const data = await res.json();
-        if (!data.ok) throw new Error(data.error);
+        await this.call({ method: 'POST', body: JSON.stringify(q[0]), headers: { 'Content-Type': 'text/plain;charset=utf-8' }, redirect: 'follow' });
         q = this.queueLoad(); q.shift(); this.queueSave(q);
       } catch (e) {
-        this.setState({ sync: 'offline' });
+        // A request the script rejects outright will never succeed — drop it
+        // after three tries so it can't block everything queued behind it.
+        if (e.server) {
+          q = this.queueLoad();
+          q[0].tries = (q[0].tries || 0) + 1;
+          if (q[0].tries >= 3) q.shift();
+          this.queueSave(q);
+        }
+        this.setState({ sync: 'offline', error: e.message });
         this._flushing = false;
         setTimeout(() => this.flush(), 15000);
         return;

@@ -13,6 +13,17 @@
  * Version: New version. The URL stays the same.
  */
 
+// Leave blank if this script was opened from the Sheet (Extensions → Apps Script).
+// If you created it at script.google.com instead, paste the Sheet's ID here —
+// the long string between /d/ and /edit in the Sheet's address.
+var SHEET_ID = '';
+
+function ss_() {
+  var ss = SHEET_ID ? SpreadsheetApp.openById(SHEET_ID) : SpreadsheetApp.getActive();
+  if (!ss) throw new Error('No spreadsheet found. Open this script from the Sheet (Extensions → Apps Script), or set SHEET_ID at the top of the script.');
+  return ss;
+}
+
 var SHEETS = {
   results: ['Updated', 'Tester', 'Page ID', 'Page', 'Check', 'Status', 'Note'],
   dev:     ['Number', 'Page', 'Reporter', 'Description', 'Jira Link', 'Status', 'Notes', 'Created', 'Updated'],
@@ -21,7 +32,7 @@ var SHEETS = {
 var NAMES = { results: 'Results', dev: 'Dev Updates', content: 'Content Updates' };
 
 function setup() {
-  var ss = SpreadsheetApp.getActive();
+  var ss = ss_();
   Object.keys(SHEETS).forEach(function (k) {
     var sh = ss.getSheetByName(NAMES[k]) || ss.insertSheet(NAMES[k]);
     if (sh.getLastRow() === 0) {
@@ -33,8 +44,8 @@ function setup() {
 }
 
 function sheet_(k) {
-  var sh = SpreadsheetApp.getActive().getSheetByName(NAMES[k]);
-  if (!sh) { setup(); sh = SpreadsheetApp.getActive().getSheetByName(NAMES[k]); }
+  var sh = ss_().getSheetByName(NAMES[k]);
+  if (!sh) { setup(); sh = ss_().getSheetByName(NAMES[k]); }
   return sh;
 }
 
@@ -52,7 +63,11 @@ function json_(o) {
 }
 
 function doGet() {
-  return json_({ ok: true, results: rows_('results'), dev: rows_('dev'), content: rows_('content') });
+  try {
+    return json_({ ok: true, results: rows_('results'), dev: rows_('dev'), content: rows_('content') });
+  } catch (err) {
+    return json_({ ok: false, error: String(err) });
+  }
 }
 
 function doPost(e) {
