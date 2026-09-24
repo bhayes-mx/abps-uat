@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+    /* Brand fonts — files live in assets/fonts/. */
+    @font-face { font-family:"Kaisei Decol"; src:url("assets/fonts/KaiseiDecol-Regular.ttf") format("truetype"); font-weight:400; font-style:normal; font-display:swap; }
+    @font-face { font-family:"Kaisei Decol"; src:url("assets/fonts/KaiseiDecol-Medium.ttf") format("truetype"); font-weight:500; font-style:normal; font-display:swap; }
+    @font-face { font-family:"Kaisei Decol"; src:url("assets/fonts/KaiseiDecol-Bold.ttf") format("truetype"); font-weight:700; font-style:normal; font-display:swap; }
+    @font-face { font-family:"DIN Pro"; src:url("assets/fonts/dinpro_light.otf") format("opentype"); font-weight:300; font-style:normal; font-display:swap; }
+    @font-face { font-family:"DIN Pro"; src:url("assets/fonts/dinpro.otf") format("opentype"); font-weight:400; font-style:normal; font-display:swap; }
+    @font-face { font-family:"DIN Pro"; src:url("assets/fonts/dinpro_medium.otf") format("opentype"); font-weight:500; font-style:normal; font-display:swap; }
+    @font-face { font-family:"DIN Pro"; src:url("assets/fonts/dinpro_bold.otf") format("opentype"); font-weight:700; font-style:normal; font-display:swap; }
+    @font-face { font-family:"DIN Pro"; src:url("assets/fonts/dinpro_black.otf") format("opentype"); font-weight:900; font-style:normal; font-display:swap; }
+</style>
+<script src="config.js"></script>
+<title>Website UAT — Ajinomoto Bio-Pharma Services</title>
+<style>
+  html, body { margin: 0; background: #F7F6F4; }
+  a { color: #EE1C26; text-decoration: none; }
+  a:hover { color: #212120; }
+  select, input, textarea, button { font-family: 'DIN Pro', sans-serif; }
+  @keyframes ajiPulse { 0%,100% { opacity: 1; } 50% { opacity: .35; } }
+</style>
+</helmet>
+
+<div style="min-height:100vh;font-family:'DIN Pro',sans-serif;color:#212120">
+
+  <header style="position:sticky;top:0;z-index:20;background:#fff;border-bottom:1px solid rgba(33,33,32,0.10)">
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:24px;padding:16px 32px;flex-wrap:wrap">
+      <div style="display:flex;align-items:center;gap:22px">
+        <img src="assets/logo-color-transparent.png" alt="Ajinomoto Bio-Pharma Services" style="height:40px;width:auto">
+        <span style="width:1px;height:32px;background:rgba(33,33,32,0.14)"></span>
+        <div style="display:flex;flex-direction:column;gap:2px">
+          <span style="font-family:'Kaisei Decol',Georgia,serif;font-size:24px;line-height:1.1">Website UAT</span>
+          <a href="{{ siteUrl }}" target="_blank" rel="noopener" style="font-size:13px;color:#4C5864">{{ siteHost }}</a>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap">
+        <div style="display:flex;align-items:baseline;gap:8px;background:#FEEBE3;border-radius:999px;padding:8px 16px">
+          <span style="font-family:'Kaisei Decol',Georgia,serif;font-size:22px;line-height:1;color:#EE1C26">{{ daysLeft }}</span>
+          <span style="font-size:12px;font-weight:700;letter-spacing:1.4px">{{ daysLabel }}</span>
+        </div>
+        <div title="{{ syncTitle }}" style="display:flex;align-items:center;gap:8px;font-size:13px;color:#4C5864;padding:8px 4px">
+          <span style="width:9px;height:9px;border-radius:50%;background:{{ syncDot }};animation:{{ syncAnim }}"></span>{{ syncLabel }}
+        </div>
+        <label style="display:flex;align-items:center;gap:10px;border:1.5px solid rgba(33,33,32,0.22);border-radius:999px;padding:4px 6px 4px 18px">
+          <span style="font-size:12px;font-weight:700;letter-spacing:1.4px;color:#4C5864">TESTER</span>
+          <select value="{{ tester }}" onChange="{{ onTester }}" style="border:0;background:#212120;color:#fff;border-radius:999px;padding:8px 14px;font-size:14px;font-weight:700;cursor:pointer">
+            <option value="">Choose your name</option>
+            <sc-for list="{{ testerOpts }}" as="t" hint-placeholder-count="0"><option value="{{ t }}">{{ t }}</option></sc-for>
+          </select>
+        </label>
+      </div>
+    </div>
+    <nav style="display:flex;gap:8px;padding:0 32px 14px;flex-wrap:wrap">
+      <sc-for list="{{ tabs }}" as="tb" hint-placeholder-count="4">
+        <button onClick="{{ tb.onClick }}" style="display:flex;align-items:center;gap:10px;border:1.5px solid {{ tb.border }};background:{{ tb.bg }};color:{{ tb.fg }};border-radius:999px;padding:9px 18px;font-size:13px;font-weight:700;letter-spacing:1.4px;cursor:pointer">{{ tb.label }}<span style="font-size:12px;opacity:.75">{{ tb.count }}</span></button>
+      </sc-for>
+    </nav>
+  </header>
+
+  <sc-if value="{{ demo }}" hint-placeholder-val="{{ false }}">
+    <div style="margin:20px 32px 0;padding:14px 20px;border-radius:16px;background:#FFF6D9;border:1px solid #FFD769;font-size:14px;line-height:1.5;display:flex;gap:12px;align-items:center"><strong style="letter-spacing:1.2px;font-size:12px">DEMO MODE</strong><span>Results are saved in this browser only. Add the Apps Script URL to <code>config.js</code> to share results across the team.</span></div>
+  </sc-if>
+  <sc-if value="{{ hasError }}" hint-placeholder-val="{{ false }}">
+    <div style="margin:20px 32px 0;padding:14px 20px;border-radius:16px;background:#FEEBE3;font-size:14px;line-height:1.5;display:flex;gap:12px;align-items:center"><span style="width:9px;height:9px;border-radius:50%;background:#EE1C26;flex:none"></span>{{ error }}</div>
+  </sc-if>
+
+  <sc-if value="{{ needTester }}" hint-placeholder-val="{{ false }}">
+    <div style="max-width:720px;margin:72px auto;padding:56px;background:#fff;border-radius:28px;box-shadow:0 20px 48px rgba(33,33,32,0.08);display:flex;flex-direction:column;gap:22px">
+      <div style="font-size:13px;font-weight:700;letter-spacing:2.4px;color:#EE1C26">USER ACCEPTANCE TESTING</div>
+      <div style="font-family:'Kaisei Decol',Georgia,serif;font-size:44px;line-height:1.1">Choose your name to begin.</div>
+      <div style="font-size:17px;line-height:1.55;color:#4C5864">Your results save automatically as you go. Mark each check Pass, Fail or N/A for every page, and add a note on any page with a Fail: device, OS, browser and the steps that led to it.</div>
+      <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px">
+        <sc-for list="{{ testerButtons }}" as="t" hint-placeholder-count="12">
+          <button onClick="{{ t.onClick }}" style="text-align:left;border:1.5px solid rgba(33,33,32,0.14);background:#fff;border-radius:14px;padding:12px 14px;font-size:15px;cursor:pointer" style-hover="border-color:#EE1C26">{{ t.name }}</button>
+        </sc-for>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ showTest }}" hint-placeholder-val="{{ false }}">
+    <main style="padding:24px 32px 64px;display:flex;flex-direction:column;gap:18px">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap">
+        <div style="display:flex;align-items:center;gap:22px;flex-wrap:wrap">
+          <div style="display:flex;flex-direction:column;gap:4px">
+            <span style="font-size:12px;font-weight:700;letter-spacing:1.6px;color:#4C5864">YOUR PROGRESS</span>
+            <span style="font-size:15px"><strong>{{ my.reviewed }}</strong> of {{ my.total }} checks · <span style="color:#00607D">{{ my.passed }} pass</span> · <span style="color:#EE1C26">{{ my.failed }} fail</span></span>
+          </div>
+          <div style="width:220px;height:8px;border-radius:999px;background:#E6EDEE;overflow:hidden"><div style="height:100%;width:{{ my.pctCss }};background:#EE1C26;border-radius:999px;transition:width 280ms cubic-bezier(0.22,1,0.36,1)"></div></div>
+          <span style="font-family:'Kaisei Decol',Georgia,serif;font-size:26px">{{ my.pctLabel }}</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+          <input value="{{ q }}" onChange="{{ onQ }}" placeholder="Search pages" style="border:1.5px solid rgba(33,33,32,0.16);border-radius:999px;padding:10px 18px;font-size:14px;width:200px;outline:none">
+          <button onClick="{{ onToggleOpen }}" style="border:1.5px solid {{ openBorder }};background:{{ openBg }};color:{{ openFg }};border-radius:999px;padding:10px 16px;font-size:13px;font-weight:700;letter-spacing:1px;cursor:pointer">{{ openLabel }}</button>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <sc-for list="{{ sectionChips }}" as="c" hint-placeholder-count="8">
+          <button onClick="{{ c.onClick }}" style="border:1px solid {{ c.border }};background:{{ c.bg }};color:{{ c.fg }};border-radius:999px;padding:7px 14px;font-size:13px;cursor:pointer;display:flex;gap:8px;align-items:center">{{ c.name }}<span style="font-size:12px;opacity:.7">{{ c.meta }}</span></button>
+        </sc-for>
+      </div>
+
+      <div style="display:flex;gap:18px;align-items:center;font-size:13px;color:#4C5864;flex-wrap:wrap">
+        <span>Click a cell to cycle</span>
+        <span style="display:flex;align-items:center;gap:6px"><span style="width:44px;height:22px;border-radius:6px;background:rgba(0,115,150,0.12);color:#00607D;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center">PASS</span></span>
+        <span style="display:flex;align-items:center;gap:6px"><span style="width:44px;height:22px;border-radius:6px;background:#EE1C26;color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center">FAIL</span></span>
+        <span style="display:flex;align-items:center;gap:6px"><span style="width:44px;height:22px;border-radius:6px;background:#E6EDEE;color:#4C5864;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center">N/A</span></span>
+        <span>Shift-click marks the whole row Pass</span>
+      </div>
+
+      <div style="background:#fff;border-radius:20px;box-shadow:0 12px 32px rgba(33,33,32,0.06);overflow:auto;max-height:calc(100vh - 300px)">
+        <div style="min-width:{{ gridMin }}">
+          <div style="position:sticky;top:0;z-index:5;background:#fff;display:grid;grid-template-columns:{{ gridCols }};border-bottom:1px solid rgba(33,33,32,0.12)">
+            <div style="position:sticky;left:0;z-index:6;background:#fff;grid-row:1 / 3;padding:14px 20px;display:flex;align-items:flex-end;font-size:12px;font-weight:700;letter-spacing:1.4px;color:#4C5864">PAGE</div>
+            <sc-for list="{{ groupHeads }}" as="g" hint-placeholder-count="4">
+              <div style="grid-column:span {{ g.span }};grid-row:1;padding:10px 8px 4px;text-align:center;font-size:11px;font-weight:700;letter-spacing:1.6px;color:{{ g.fg }};border-left:1px solid rgba(33,33,32,0.08)">{{ g.label }}</div>
+            </sc-for>
+            <div style="grid-row:1 / 3;padding:14px 16px;display:flex;align-items:flex-end;font-size:12px;font-weight:700;letter-spacing:1.4px;color:#4C5864;border-left:1px solid rgba(33,33,32,0.08)">NOTES</div>
+            <sc-for list="{{ checkHeads }}" as="h" hint-placeholder-count="11">
+              <div style="grid-row:2;padding:4px 6px 12px;text-align:center;font-size:12px;font-weight:700;color:#212120;border-left:{{ h.edge }}">{{ h.label }}</div>
+            </sc-for>
+          </div>
+
+          <sc-for list="{{ groups }}" as="grp" hint-placeholder-count="3">
+            <div style="position:sticky;left:0;display:flex;align-items:center;gap:14px;padding:18px 20px 8px;background:#fff;width:max-content">
+              <span style="width:10px;height:10px;border-radius:50%;background:#EE1C26"></span>
+              <span style="font-family:'Kaisei Decol',Georgia,serif;font-size:20px">{{ grp.name }}</span>
+              <span style="font-size:13px;color:#4C5864">{{ grp.meta }}</span>
+            </div>
+            <sc-for list="{{ grp.rows }}" as="r" hint-placeholder-count="4">
+              <div style="display:grid;grid-template-columns:{{ gridCols }};border-top:1px solid rgba(33,33,32,0.07);background:{{ r.rowBg }}">
+                <div style="position:sticky;left:0;z-index:2;background:{{ r.stickyBg }};padding:10px 20px 10px {{ r.indent }};display:flex;flex-direction:column;justify-content:center;gap:2px;min-width:0">
+                  <a href="{{ r.url }}" target="_blank" rel="noopener" style="font-size:14px;font-weight:700;color:#212120;line-height:1.3;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" style-hover="color:#EE1C26">{{ r.page }}</a>
+                  <span style="font-size:12px;color:#4C5864;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ r.pathLabel }}</span>
+                </div>
+                <sc-for list="{{ r.cells }}" as="c" hint-placeholder-count="11">
+                  <div style="padding:6px 4px;display:flex;align-items:center;justify-content:center;border-left:{{ c.edge }}">
+                    <button onClick="{{ c.onClick }}" title="{{ c.title }}" style="width:100%;max-width:72px;height:32px;border-radius:8px;border:{{ c.border }};background:{{ c.bg }};color:{{ c.fg }};font-size:11px;font-weight:700;letter-spacing:0.8px;cursor:pointer;transition:background 160ms">{{ c.label }}</button>
+                  </div>
+                </sc-for>
+                <div style="padding:6px 12px;border-left:1px solid rgba(33,33,32,0.08);display:flex;flex-direction:column;justify-content:center;gap:4px">
+                  <textarea rows="1" value="{{ r.note }}" onChange="{{ r.onNote }}" onBlur="{{ r.onNoteBlur }}" placeholder="{{ r.notePh }}" style="width:100%;box-sizing:border-box;resize:vertical;min-height:32px;border:1px solid {{ r.noteBorder }};border-radius:8px;padding:7px 10px;font-size:13px;line-height:1.35;outline:none;background:#fff"></textarea>
+                </div>
+              </div>
+            </sc-for>
+          </sc-for>
+          <sc-if value="{{ noRows }}" hint-placeholder-val="{{ false }}">
+            <div style="padding:48px;text-align:center;color:#4C5864;font-size:15px">No pages match. Clear the search or pick another section.</div>
+          </sc-if>
+        </div>
+      </div>
+    </main>
+  </sc-if>
+
+  <sc-if value="{{ showDash }}" hint-placeholder-val="{{ false }}">
+    <main style="padding:28px 32px 64px;display:flex;flex-direction:column;gap:24px">
+      <div style="display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:18px">
+        <sc-for list="{{ kpis }}" as="k" hint-placeholder-count="5">
+          <div style="background:#fff;border-radius:22px;box-shadow:0 12px 32px rgba(33,33,32,0.06);padding:24px 26px;display:flex;flex-direction:column;gap:8px">
+            <span style="font-size:12px;font-weight:700;letter-spacing:1.6px;color:#4C5864">{{ k.label }}</span>
+            <span style="font-family:'Kaisei Decol',Georgia,serif;font-size:40px;line-height:1;color:{{ k.color }}">{{ k.value }}</span>
+            <span style="font-size:13px;color:#4C5864">{{ k.sub }}</span>
+          </div>
+        </sc-for>
+      </div>
+
+      <div style="background:#fff;border-radius:22px;box-shadow:0 12px 32px rgba(33,33,32,0.06);padding:28px 32px;display:flex;flex-direction:column;gap:16px">
+        <div style="display:flex;align-items:baseline;justify-content:space-between;gap:16px">
+          <span style="font-family:'Kaisei Decol',Georgia,serif;font-size:26px">Completion Progress</span>
+          <span style="font-family:'Kaisei Decol',Georgia,serif;font-size:32px;color:#EE1C26">{{ overall.pctLabel }}</span>
+        </div>
+        <div style="height:14px;border-radius:999px;background:#E6EDEE;overflow:hidden;display:flex">
+          <div style="height:100%;width:{{ overall.passCss }};background:#007396"></div>
+          <div style="height:100%;width:{{ overall.failCss }};background:#EE1C26"></div>
+          <div style="height:100%;width:{{ overall.naCss }};background:#B9C4C8"></div>
+        </div>
+        <div style="display:flex;gap:22px;font-size:13px;color:#4C5864;flex-wrap:wrap">
+          <span style="display:flex;align-items:center;gap:8px"><span style="width:10px;height:10px;border-radius:3px;background:#007396"></span>Passed {{ overall.passed }}</span>
+          <span style="display:flex;align-items:center;gap:8px"><span style="width:10px;height:10px;border-radius:3px;background:#EE1C26"></span>Failed {{ overall.failed }}</span>
+          <span style="display:flex;align-items:center;gap:8px"><span style="width:10px;height:10px;border-radius:3px;background:#B9C4C8"></span>N/A {{ overall.na }}</span>
+          <span style="display:flex;align-items:center;gap:8px"><span style="width:10px;height:10px;border-radius:3px;background:#E6EDEE"></span>Not started {{ overall.left }}</span>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:24px;align-items:start">
+        <div style="background:#fff;border-radius:22px;box-shadow:0 12px 32px rgba(33,33,32,0.06);padding:28px 32px;display:flex;flex-direction:column;gap:4px">
+          <span style="font-family:'Kaisei Decol',Georgia,serif;font-size:24px;margin-bottom:12px">By Tester</span>
+          <sc-for list="{{ testerRows }}" as="t" hint-placeholder-count="8">
+            <div style="display:grid;grid-template-columns:180px minmax(0,1fr) 64px 72px;gap:16px;align-items:center;padding:8px 0;border-top:1px solid rgba(33,33,32,0.06)">
+              <span style="font-size:14px;font-weight:{{ t.weight }};overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ t.name }}</span>
+              <div style="height:8px;border-radius:999px;background:#E6EDEE;overflow:hidden;display:flex"><div style="height:100%;width:{{ t.passCss }};background:#007396"></div><div style="height:100%;width:{{ t.failCss }};background:#EE1C26"></div><div style="height:100%;width:{{ t.naCss }};background:#B9C4C8"></div></div>
+              <span style="font-size:14px;font-weight:700;text-align:right">{{ t.pctLabel }}</span>
+              <span style="font-size:13px;color:{{ t.failColor }};text-align:right">{{ t.failLabel }}</span>
+            </div>
+          </sc-for>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:24px">
+          <div style="background:#fff;border-radius:22px;box-shadow:0 12px 32px rgba(33,33,32,0.06);padding:28px 32px;display:flex;flex-direction:column;gap:4px">
+            <span style="font-family:'Kaisei Decol',Georgia,serif;font-size:24px;margin-bottom:12px">By Section</span>
+            <sc-for list="{{ sectionRows }}" as="s" hint-placeholder-count="8">
+              <div style="display:grid;grid-template-columns:minmax(0,1fr) 120px 56px;gap:16px;align-items:center;padding:8px 0;border-top:1px solid rgba(33,33,32,0.06)">
+                <span style="font-size:14px">{{ s.name }}</span>
+                <div style="height:8px;border-radius:999px;background:#E6EDEE;overflow:hidden;display:flex"><div style="height:100%;width:{{ s.passCss }};background:#007396"></div><div style="height:100%;width:{{ s.failCss }};background:#EE1C26"></div></div>
+                <span style="font-size:13px;color:{{ s.failColor }};text-align:right">{{ s.failLabel }}</span>
+              </div>
+            </sc-for>
+          </div>
+          <div style="background:#fff;border-radius:22px;box-shadow:0 12px 32px rgba(33,33,32,0.06);padding:28px 32px;display:flex;flex-direction:column;gap:4px">
+            <span style="font-family:'Kaisei Decol',Georgia,serif;font-size:24px;margin-bottom:12px">Most-Failed Pages</span>
+            <sc-for list="{{ hotPages }}" as="h" hint-placeholder-count="5">
+              <div style="display:grid;grid-template-columns:minmax(0,1fr) auto;gap:16px;align-items:center;padding:8px 0;border-top:1px solid rgba(33,33,32,0.06)">
+                <a href="{{ h.url }}" target="_blank" rel="noopener" style="font-size:14px;color:#212120;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ h.page }}</a>
+                <span style="font-size:12px;font-weight:700;background:#EE1C26;color:#fff;border-radius:999px;padding:3px 10px">{{ h.fails }} FAIL</span>
+              </div>
+            </sc-for>
+            <sc-if value="{{ noHot }}" hint-placeholder-val="{{ false }}"><span style="font-size:14px;color:#4C5864;padding:8px 0">No failures logged yet.</span></sc-if>
+          </div>
+        </div>
+      </div>
+
+      <div style="background:#fff;border-radius:22px;box-shadow:0 12px 32px rgba(33,33,32,0.06);padding:28px 32px;display:flex;flex-direction:column;gap:4px">
+        <div style="display:flex;align-items:baseline;justify-content:space-between;gap:16px;margin-bottom:12px">
+          <span style="font-family:'Kaisei Decol',Georgia,serif;font-size:24px">Failure Notes</span>
+          <span style="font-size:13px;color:#4C5864">Newest first · pages with a Fail and the tester's note</span>
+        </div>
+        <sc-for list="{{ failNotes }}" as="f" hint-placeholder-count="4">
+          <div style="display:grid;grid-template-columns:170px 240px minmax(0,1fr) 110px;gap:18px;align-items:start;padding:12px 0;border-top:1px solid rgba(33,33,32,0.06);font-size:14px;line-height:1.45">
+            <span style="font-weight:700">{{ f.tester }}</span>
+            <div style="display:flex;flex-direction:column;gap:4px"><a href="{{ f.url }}" target="_blank" rel="noopener" style="color:#212120">{{ f.page }}</a><span style="font-size:12px;color:#EE1C26;font-weight:700">{{ f.checks }}</span></div>
+            <span style="color:{{ f.noteColor }};white-space:pre-wrap">{{ f.note }}</span>
+            <span style="font-size:12px;color:#4C5864;text-align:right">{{ f.when }}</span>
+          </div>
+        </sc-for>
+        <sc-if value="{{ noFailNotes }}" hint-placeholder-val="{{ false }}"><span style="font-size:14px;color:#4C5864;padding:8px 0">No failures logged yet.</span></sc-if>
+      </div>
+    </main>
+  </sc-if>
+
+  <sc-if value="{{ showIssues }}" hint-placeholder-val="{{ false }}">
+    <main style="padding:28px 32px 64px;display:flex;flex-direction:column;gap:22px">
+      <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:20px;flex-wrap:wrap">
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <span style="font-size:12px;font-weight:700;letter-spacing:1.6px;color:#EE1C26">{{ issue.eyebrow }}</span>
+          <span style="font-family:'Kaisei Decol',Georgia,serif;font-size:34px;line-height:1.1">{{ issue.title }}</span>
+          <span style="font-size:15px;color:#4C5864;max-width:720px">{{ issue.blurb }}</span>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <sc-for list="{{ issue.statusChips }}" as="c" hint-placeholder-count="6">
+            <button onClick="{{ c.onClick }}" style="border:1px solid {{ c.border }};background:{{ c.bg }};color:{{ c.fg }};border-radius:999px;padding:6px 12px;font-size:12px;cursor:pointer">{{ c.label }}</button>
+          </sc-for>
+        </div>
+      </div>
+
+      <div style="background:#FEEBE3;border-radius:22px;padding:22px 24px;display:grid;grid-template-columns:{{ issue.formCols }};gap:12px;align-items:end">
+        <label style="display:flex;flex-direction:column;gap:6px;font-size:12px;font-weight:700;letter-spacing:1.2px;color:#4C5864">PAGE
+          <select value="{{ issue.form.Page }}" onChange="{{ issue.onPage }}" style="border:1px solid rgba(33,33,32,0.16);border-radius:10px;padding:10px;font-size:14px;background:#fff;color:#212120;font-weight:400;letter-spacing:0">
+            <option value="">Select a page</option>
+            <option value="Site-wide">Site-wide (header, footer, menu)</option>
+            <sc-for list="{{ pageOpts }}" as="p" hint-placeholder-count="0"><option value="{{ p }}">{{ p }}</option></sc-for>
+          </select>
+        </label>
+        <label style="display:flex;flex-direction:column;gap:6px;font-size:12px;font-weight:700;letter-spacing:1.2px;color:#4C5864">DESCRIPTION
+          <input value="{{ issue.form.Description }}" onChange="{{ issue.onDesc }}" placeholder="What's wrong, and where on the page" style="border:1px solid rgba(33,33,32,0.16);border-radius:10px;padding:10px 12px;font-size:14px;font-weight:400;letter-spacing:0;color:#212120">
+        </label>
+        <sc-if value="{{ issue.isContent }}" hint-placeholder-val="{{ false }}">
+          <label style="display:flex;flex-direction:column;gap:6px;font-size:12px;font-weight:700;letter-spacing:1.2px;color:#4C5864">TYPE
+            <select value="{{ issue.form.Type }}" onChange="{{ issue.onType }}" style="border:1px solid rgba(33,33,32,0.16);border-radius:10px;padding:10px;font-size:14px;background:#fff;color:#212120;font-weight:400;letter-spacing:0">
+              <sc-for list="{{ contentTypes }}" as="t" hint-placeholder-count="0"><option value="{{ t }}">{{ t }}</option></sc-for>
+            </select>
+          </label>
+        </sc-if>
+        <sc-if value="{{ issue.isDev }}" hint-placeholder-val="{{ false }}">
+          <label style="display:flex;flex-direction:column;gap:6px;font-size:12px;font-weight:700;letter-spacing:1.2px;color:#4C5864">JIRA LINK
+            <input value="{{ issue.form.Jira }}" onChange="{{ issue.onJira }}" placeholder="Optional" style="border:1px solid rgba(33,33,32,0.16);border-radius:10px;padding:10px 12px;font-size:14px;font-weight:400;letter-spacing:0;color:#212120">
+          </label>
+        </sc-if>
+        <button onClick="{{ issue.onAdd }}" disabled="{{ issue.addDisabled }}" style="display:inline-flex;align-items:center;gap:12px;border:0;background:{{ issue.addBg }};color:#fff;border-radius:999px;padding:5px 5px 5px 20px;font-size:13px;font-weight:700;letter-spacing:1.4px;cursor:pointer;height:44px">LOG ISSUE<span style="width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,0.22);display:flex;align-items:center;justify-content:center"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 2v10M2 7h10" stroke="#fff" stroke-width="1.8" stroke-linecap="round"></path></svg></span></button>
+      </div>
+
+      <div style="background:#fff;border-radius:22px;box-shadow:0 12px 32px rgba(33,33,32,0.06);overflow:auto">
+        <div style="min-width:1100px">
+          <div style="display:grid;grid-template-columns:{{ issue.cols }};gap:16px;padding:14px 24px;border-bottom:1px solid rgba(33,33,32,0.12);font-size:12px;font-weight:700;letter-spacing:1.4px;color:#4C5864">
+            <span>#</span><span>PAGE</span><span>REPORTER</span><span>DESCRIPTION</span><span>{{ issue.extraHead }}</span><span>STATUS</span><span>NOTES</span>
+          </div>
+          <sc-for list="{{ issue.rows }}" as="r" hint-placeholder-count="3">
+            <div style="display:grid;grid-template-columns:{{ issue.cols }};gap:16px;padding:12px 24px;border-top:1px solid rgba(33,33,32,0.06);align-items:center;font-size:14px;line-height:1.45;background:{{ r.bg }}">
+              <span style="font-family:'Kaisei Decol',Georgia,serif;font-size:18px;color:#EE1C26">{{ r.num }}</span>
+              <span>{{ r.page }}</span>
+              <span style="color:#4C5864">{{ r.reporter }}</span>
+              <span style="white-space:pre-wrap">{{ r.desc }}</span>
+              <span style="overflow:hidden;text-overflow:ellipsis">{{ r.extra }}</span>
+              <select value="{{ r.status }}" onChange="{{ r.onStatus }}" style="border:1px solid rgba(33,33,32,0.16);border-radius:999px;padding:7px 10px;font-size:13px;background:{{ r.statusBg }};color:{{ r.statusFg }};font-weight:700">
+                <sc-for list="{{ issueStatuses }}" as="s" hint-placeholder-count="0"><option value="{{ s }}">{{ s }}</option></sc-for>
+              </select>
+              <input value="{{ r.notes }}" onChange="{{ r.onNotes }}" onBlur="{{ r.onNotesBlur }}" placeholder="Add a note" style="border:1px solid rgba(33,33,32,0.12);border-radius:8px;padding:7px 10px;font-size:13px;outline:none">
+            </div>
+          </sc-for>
+          <sc-if value="{{ issue.empty }}" hint-placeholder-val="{{ false }}">
+            <div style="padding:48px;text-align:center;color:#4C5864;font-size:15px">{{ issue.emptyLabel }}</div>
+          </sc-if>
+        </div>
+      </div>
+    </main>
+  </sc-if>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = {
+    cfg: null, pages: [], tester: '', tab: 'test',
+    results: {}, dev: [], content: [],
+    section: 'All', q: '', onlyOpen: false,
+    noteDrafts: {}, issueNoteDrafts: {},
+    form: { Page: '', Description: '', Type: 'Copy', Jira: '' },
+    issueFilter: 'Open',
+    sync: 'loading', pending: 0, lastSync: null, error: ''
+  };
+
+  // ---------- setup ----------
+  componentDidMount() {
+    try { this.setState({ tester: localStorage.getItem('aji-uat-tester') || '' }); } catch (e) {}
+    this.waitForConfig(0);
+  }
+  componentWillUnmount() { clearInterval(this._poll); this._dead = true; }
+
+  waitForConfig(n) {
+    if (window.UAT_CONFIG) return this.boot(window.UAT_CONFIG);
+    if (n > 100) return this.setState({ error: 'config.js did not load. Check that it sits next to index.html.', sync: 'error' });
+    setTimeout(() => this.waitForConfig(n + 1), 50);
+  }
+
+  async boot(cfg) {
+    this.setState({ cfg });
+    try {
+      const res = await fetch(this.base() + 'pages.csv', { cache: 'no-store' });
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      const rows = this.parseCSV(await res.text());
+      const h = rows[0].map(s => s.trim().toLowerCase());
+      const ix = k => h.indexOf(k);
+      const pages = rows.slice(1).filter(r => r[ix('id')]).map(r => ({
+        id: r[ix('id')].trim(), section: r[ix('section')].trim(), page: r[ix('page')].trim(),
+        path: (r[ix('path')] || '/').trim(), type: (r[ix('type')] || 'Page').trim(), depth: +(r[ix('depth')] || 0)
+      }));
+      this.setState({ pages });
+    } catch (e) {
+      this.setState({ error: 'pages.csv could not be loaded (' + e.message + ').', sync: 'error' });
+      return;
+    }
+    await this.pull();
+    this.flush();
+    this._poll = setInterval(() => { if (!document.hidden) this.pull(); }, 45000);
+  }
+
+  // Page and data files live beside index.html; in the design preview they sit in uat-tracker/.
+  base() { return /\.dc\.html$/.test(location.pathname) || /UAT%20Tracker|UAT Tracker/.test(location.pathname) ? 'uat-tracker/' : ''; }
+  url() { return (this.state.cfg && this.state.cfg.appsScriptUrl || '').trim(); }
+
+  parseCSV(t) {
+    const rows = []; let row = [], cell = '', q = false;
+    for (let i = 0; i < t.length; i++) { const c = t[i];
+      if (q) { if (c === '"') { if (t[i + 1] === '"') { cell += '"'; i++; } else q = false; } else cell += c; }
+      else if (c === '"') q = true; else if (c === ',') { row.push(cell); cell = ''; }
+      else if (c === '\n') { row.push(cell); rows.push(row); row = []; cell = ''; }
+      else if (c !== '\r') cell += c; }
+    if (cell.length || row.length) { row.push(cell); rows.push(row); }
+    return rows;
+  }
+
+  // ---------- storage ----------
+  key(t, p, c) { return t + '\u0001' + p + '\u0001' + c; }
+  demoLoad() { try { return JSON.parse(localStorage.getItem('aji-uat-demo') || '{}'); } catch (e) { return {}; } }
+  demoSave(d) { try { localStorage.setItem('aji-uat-demo', JSON.stringify(d)); } catch (e) {} }
+  queueLoad() { try { return JSON.parse(localStorage.getItem('aji-uat-queue') || '[]'); } catch (e) { return []; } }
+  queueSave(q) { try { localStorage.setItem('aji-uat-queue', JSON.stringify(q)); } catch (e) {} this.setState({ pending: q.length }); }
+
+  ingest(data) {
+    const results = {};
+    (data.results || []).forEach(r => {
+      results[this.key(r.Tester, r['Page ID'], r.Check)] = { s: r.Status || '', n: r.Note || '', at: r.Updated || '' };
+    });
+    // re-apply unsent local writes so a poll never reverts them
+    this.queueLoad().forEach(b => {
+      if (b.action === 'setResult') results[this.key(b.tester, b.pageId, b.check)] = { s: b.status || '', n: b.note || '', at: b.at };
+    });
+    return { results, dev: data.dev || [], content: data.content || [] };
+  }
+
+  async pull() {
+    if (!this.url()) {
+      const d = this.demoLoad();
+      this.setState({ results: d.results || {}, dev: d.dev || [], content: d.content || [], sync: 'demo', lastSync: new Date() });
+      return;
+    }
+    try {
+      const res = await fetch(this.url(), { cache: 'no-store', redirect: 'follow' });
+      const data = await res.json();
+      if (!data.ok) throw new Error(data.error || 'bad response');
+      if (this._dead) return;
+      this.setState({ ...this.ingest(data), sync: this.queueLoad().length ? 'saving' : 'ok', lastSync: new Date(), error: '' });
+    } catch (e) {
+      this.setState({ sync: 'offline', error: 'Could not reach the results sheet. Your changes are kept and will send when the connection returns.' });
+    }
+  }
+
+  send(body) {
+    body.at = new Date().toISOString();
+    if (!this.url()) {
+      const d = this.demoLoad(); d.results = d.results || {}; d.dev = d.dev || []; d.content = d.content || [];
+      if (body.action === 'setResult') {
+        const k = this.key(body.tester, body.pageId, body.check);
+        if (!body.status && !body.note) delete d.results[k]; else d.results[k] = { s: body.status, n: body.note, at: body.at };
+      } else {
+        const list = d[body.log];
+        if (body.action === 'addIssue') {
+          const num = list.reduce((m, r) => Math.max(m, +r.Number || 0), 0) + 1;
+          list.push({ Number: num, Status: 'Reported', ...body.fields, Created: body.at, Updated: body.at });
+        } else {
+          const r = list.find(x => +x.Number === +body.number); if (r) Object.assign(r, body.fields, { Updated: body.at });
+        }
+      }
+      this.demoSave(d);
+      this.setState({ results: d.results, dev: d.dev, content: d.content });
+      return;
+    }
+    const q = this.queueLoad(); q.push(body); this.queueSave(q);
+    this.flush();
+  }
+
+  async flush() {
+    if (this._flushing || !this.url()) return;
+    this._flushing = true;
+    let q = this.queueLoad();
+    while (q.length) {
+      this.setState({ sync: 'saving' });
+      try {
+        const res = await fetch(this.url(), { method: 'POST', body: JSON.stringify(q[0]), headers: { 'Content-Type': 'text/plain;charset=utf-8' }, redirect: 'follow' });
+        const data = await res.json();
+        if (!data.ok) throw new Error(data.error);
+        q = this.queueLoad(); q.shift(); this.queueSave(q);
+      } catch (e) {
+        this.setState({ sync: 'offline' });
+        this._flushing = false;
+        setTimeout(() => this.flush(), 15000);
+        return;
+      }
+    }
+    this._flushing = false;
+    const hadIssue = this._needsPull; this._needsPull = false;
+    this.setState({ sync: 'ok', lastSync: new Date(), error: '' });
+    if (hadIssue) this.pull();
+  }
+
+  // ---------- actions ----------
+  setTester(t) {
+    try { t ? localStorage.setItem('aji-uat-tester', t) : localStorage.removeItem('aji-uat-tester'); } catch (e) {}
+    this.setState({ tester: t, noteDrafts: {}, tab: t ? this.state.tab : 'test' });
+  }
+
+  setCell(p, check, status) {
+    const t = this.state.tester; if (!t) return;
+    const k = this.key(t, p.id, check);
+    this.setState(s => ({ results: { ...s.results, [k]: { s: status, n: '', at: new Date().toISOString() } } }));
+    this.send({ action: 'setResult', tester: t, pageId: p.id, page: p.page, check, status, note: '' });
+  }
+
+  cycle(p, check, shift) {
+    const cfg = this.state.cfg, t = this.state.tester;
+    if (shift) {
+      cfg.checks.forEach(c => { const cur = (this.state.results[this.key(t, p.id, c.id)] || {}).s; if (!cur) this.setCell(p, c.id, 'Pass'); });
+      return;
+    }
+    const order = ['', 'Pass', 'Fail', 'N/A'];
+    const cur = (this.state.results[this.key(t, p.id, check)] || {}).s || '';
+    this.setCell(p, check, order[(order.indexOf(cur) + 1) % order.length]);
+  }
+
+  saveNote(p) {
+    const t = this.state.tester, k = this.key(t, p.id, 'notes');
+    const v = this.state.noteDrafts[p.id]; if (v === undefined) return;
+    const saved = (this.state.results[k] || {}).n || '';
+    if (v === saved) return;
+    this.setState(s => ({ results: { ...s.results, [k]: { s: '', n: v, at: new Date().toISOString() } } }));
+    this.send({ action: 'setResult', tester: t, pageId: p.id, page: p.page, check: 'notes', status: '', note: v });
+  }
+
+  addIssue(log) {
+    const f = this.state.form, t = this.state.tester;
+    if (!f.Page || !f.Description.trim()) return;
+    const fields = { Page: f.Page, Reporter: t, Description: f.Description.trim(), Status: 'Reported' };
+    if (log === 'content') fields.Type = f.Type; else fields['Jira Link'] = f.Jira.trim();
+    if (this.url()) {
+      // optimistic row until the next pull assigns the real number
+      const list = this.state[log].concat([{ Number: '…', ...fields, _temp: true }]);
+      this.setState({ [log]: list });
+      this._needsPull = true;
+    }
+    this.send({ action: 'addIssue', log, fields });
+    this.setState({ form: { ...f, Description: '', Jira: '' } });
+  }
+
+  updateIssue(log, num, fields) {
+    this.setState(s => ({ [log]: s[log].map(r => +r.Number === +num ? { ...r, ...fields } : r) }));
+    this.send({ action: 'updateIssue', log, number: num, fields });
+  }
+
+  // ---------- derived ----------
+  pagesFor(t) {
+    const a = this.state.cfg && this.state.cfg.assignments && this.state.cfg.assignments[t];
+    return a && a.length ? this.state.pages.filter(p => a.indexOf(p.section) !== -1) : this.state.pages;
+  }
+
+  tally(t, pages) {
+    const cfg = this.state.cfg, R = this.state.results;
+    let passed = 0, failed = 0, na = 0;
+    pages.forEach(p => cfg.checks.forEach(c => {
+      const s = (R[this.key(t, p.id, c.id)] || {}).s;
+      if (s === 'Pass') passed++; else if (s === 'Fail') failed++; else if (s === 'N/A') na++;
+    }));
+    const total = pages.length * cfg.checks.length;
+    return { passed, failed, na, reviewed: passed + failed + na, total };
+  }
+
+  pct(n, d) { return d ? Math.round((n / d) * 1000) / 10 : 0; }
+  css(n, d) { return (d ? (n / d) * 100 : 0).toFixed(2) + '%'; }
+  ago(iso) {
+    if (!iso) return '';
+    const d = new Date(iso), m = Math.round((Date.now() - d) / 60000);
+    if (m < 1) return 'just now'; if (m < 60) return m + ' min ago';
+    if (m < 1440) return Math.round(m / 60) + ' hr ago';
+    return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+  }
+
+  renderVals() {
+    const s = this.state, cfg = s.cfg || { checks: [], testers: [], issueStatuses: [], contentTypes: [], siteUrl: '', deadline: '' };
+    const R = s.results, t = s.tester;
+    const site = (cfg.siteUrl || '').replace(/\/$/, '');
+    const urlOf = p => site + p.path;
+
+    // header
+    const dl = cfg.deadline ? new Date(cfg.deadline + 'T23:59:59') : null;
+    const days = dl ? Math.ceil((dl - Date.now()) / 86400000) : null;
+    const syncMap = {
+      loading: ['#B9C4C8', 'Loading…', 'ajiPulse 1.2s infinite'], ok: ['#007396', 'Saved', 'none'],
+      saving: ['#FFD769', 'Saving…', 'ajiPulse 1.2s infinite'], offline: ['#EE1C26', 'Offline — ' + s.pending + ' waiting', 'ajiPulse 1.6s infinite'],
+      demo: ['#FFD769', 'Demo mode', 'none'], error: ['#EE1C26', 'Error', 'none']
+    };
+    const sy = syncMap[s.sync] || syncMap.loading;
+
+    const openDev = s.dev.filter(r => r.Status !== 'Complete' && r.Status !== 'Deferred').length;
+    const openContent = s.content.filter(r => r.Status !== 'Complete' && r.Status !== 'Deferred').length;
+    const tabDefs = [['test', 'MY TESTING', ''], ['dash', 'DASHBOARD', ''], ['dev', 'DEV UPDATES', openDev ? openDev + ' open' : ''], ['content', 'CONTENT UPDATES', openContent ? openContent + ' open' : '']];
+    const tabs = tabDefs.map(([id, label, count]) => {
+      const on = s.tab === id;
+      return { label, count, bg: on ? '#212120' : '#fff', fg: on ? '#fff' : '#212120', border: on ? '#212120' : 'rgba(33,33,32,0.18)', onClick: () => this.setState({ tab: id }) };
+    });
+
+    // testing grid
+    const myPages = t ? this.pagesFor(t) : [];
+    const my = t && cfg.checks.length ? this.tally(t, myPages) : { passed: 0, failed: 0, na: 0, reviewed: 0, total: 0 };
+    const sections = [];
+    myPages.forEach(p => { if (sections.indexOf(p.section) === -1) sections.push(p.section); });
+    const q = s.q.trim().toLowerCase();
+    const rowOpen = p => cfg.checks.some(c => !(R[this.key(t, p.id, c.id)] || {}).s);
+    const visible = myPages.filter(p =>
+      (s.section === 'All' || p.section === s.section) &&
+      (!q || p.page.toLowerCase().includes(q) || p.path.toLowerCase().includes(q)) &&
+      (!s.onlyOpen || rowOpen(p) || cfg.checks.some(c => (R[this.key(t, p.id, c.id)] || {}).s === 'Fail'))
+    );
+
+    let prevGroup = '';
+    const edgeFor = i => i > 0 && cfg.checks[i].group !== cfg.checks[i - 1].group ? '1px solid rgba(33,33,32,0.10)' : (i === 0 ? '1px solid rgba(33,33,32,0.08)' : '0');
+    const groups = [];
+    visible.forEach(p => {
+      let g = groups.find(x => x.name === p.section);
+      if (!g) { g = { name: p.section, rows: [], _p: [] }; groups.push(g); }
+      g._p.push(p);
+      const cells = cfg.checks.map((c, i) => {
+        const st = (R[this.key(t, p.id, c.id)] || {}).s || '';
+        const look = st === 'Pass' ? ['rgba(0,115,150,0.12)', '#00607D', '1px solid transparent', 'PASS']
+          : st === 'Fail' ? ['#EE1C26', '#fff', '1px solid #EE1C26', 'FAIL']
+          : st === 'N/A' ? ['#E6EDEE', '#4C5864', '1px solid transparent', 'N/A']
+          : ['#fff', '#B9C4C8', '1px dashed rgba(33,33,32,0.22)', '—'];
+        return { bg: look[0], fg: look[1], border: look[2], label: look[3], edge: edgeFor(i),
+          title: c.group + ' · ' + c.label + (st ? ' — ' + st : ''),
+          onClick: e => this.cycle(p, c.id, e && e.shiftKey) };
+      });
+      const hasFail = cfg.checks.some(c => (R[this.key(t, p.id, c.id)] || {}).s === 'Fail');
+      const savedNote = (R[this.key(t, p.id, 'notes')] || {}).n || '';
+      const note = s.noteDrafts[p.id] !== undefined ? s.noteDrafts[p.id] : savedNote;
+      const needsNote = hasFail && !note.trim();
+      g.rows.push({
+        page: p.type === 'Template' ? p.page : p.page, pathLabel: p.path, url: urlOf(p),
+        indent: (20 + Math.min(p.depth, 3) * 16) + 'px',
+        rowBg: needsNote ? '#FFF7F4' : '#fff', stickyBg: needsNote ? '#FFF7F4' : '#fff',
+        cells, note,
+        notePh: needsNote ? 'Required: device, OS, browser, steps' : 'Notes',
+        noteBorder: needsNote ? '#EE1C26' : 'rgba(33,33,32,0.12)',
+        onNote: e => { const v = e.target.value; this.setState(st => ({ noteDrafts: { ...st.noteDrafts, [p.id]: v } })); },
+        onNoteBlur: () => this.saveNote(p)
+      });
+    });
+    groups.forEach(g => { const tl = this.tally(t, g._p); g.meta = tl.reviewed + ' / ' + tl.total + (tl.failed ? ' · ' + tl.failed + ' fail' : ''); delete g._p; });
+
+    const heads = [];
+    cfg.checks.forEach(c => { const last = heads[heads.length - 1]; if (last && last.label === c.group.toUpperCase()) last.span++; else heads.push({ label: c.group.toUpperCase(), span: 1 }); });
+    heads.forEach(h => h.fg = h.label === 'MOBILE' || h.label === 'DESKTOP' ? '#EE1C26' : '#4C5864');
+
+    const chip = (name, meta, on, onClick) => ({ name, meta, bg: on ? '#FEEBE3' : '#fff', fg: '#212120', border: on ? '#EE1C26' : 'rgba(33,33,32,0.14)', onClick });
+    const sectionChips = [chip('All sections', my.reviewed + '/' + my.total, s.section === 'All', () => this.setState({ section: 'All' }))]
+      .concat(sections.map(n => { const tl = this.tally(t, myPages.filter(p => p.section === n)); return chip(n, this.pct(tl.reviewed, tl.total) + '%', s.section === n, () => this.setState({ section: n })); }));
+
+    // dashboard
+    const testers = cfg.testers || [];
+    let O = { passed: 0, failed: 0, na: 0, reviewed: 0, total: 0 };
+    const testerRows = testers.map(name => {
+      const tl = this.tally(name, this.pagesFor(name));
+      Object.keys(O).forEach(k => O[k] += tl[k]);
+      return { name, tl };
+    }).sort((a, b) => b.tl.reviewed / (b.tl.total || 1) - a.tl.reviewed / (a.tl.total || 1)).map(({ name, tl }) => ({
+      name, weight: name === t ? '700' : '400',
+      passCss: this.css(tl.passed, tl.total), failCss: this.css(tl.failed, tl.total), naCss: this.css(tl.na, tl.total),
+      pctLabel: this.pct(tl.reviewed, tl.total) + '%',
+      failLabel: tl.failed ? tl.failed + ' fail' : (tl.reviewed ? '' : 'not started'),
+      failColor: tl.failed ? '#EE1C26' : '#4C5864'
+    }));
+    const secNames = [];
+    s.pages.forEach(p => { if (secNames.indexOf(p.section) === -1) secNames.push(p.section); });
+    const sectionRows = secNames.map(n => {
+      let a = { passed: 0, failed: 0, na: 0, reviewed: 0, total: 0 };
+      testers.forEach(name => { const tl = this.tally(name, this.pagesFor(name).filter(p => p.section === n)); Object.keys(a).forEach(k => a[k] += tl[k]); });
+      return { name: n, passCss: this.css(a.passed, a.total), failCss: this.css(a.failed, a.total), failLabel: a.failed ? a.failed + ' fail' : this.pct(a.reviewed, a.total) + '%', failColor: a.failed ? '#EE1C26' : '#4C5864' };
+    });
+    const failByPage = {};
+    const failNotes = [];
+    s.pages.forEach(p => testers.forEach(name => {
+      const failed = cfg.checks.filter(c => (R[this.key(name, p.id, c.id)] || {}).s === 'Fail');
+      if (!failed.length) return;
+      failByPage[p.id] = (failByPage[p.id] || 0) + failed.length;
+      const nr = R[this.key(name, p.id, 'notes')] || {};
+      const latest = failed.map(c => (R[this.key(name, p.id, c.id)] || {}).at || '').concat([nr.at || '']).sort().pop();
+      failNotes.push({ tester: name, page: p.page, url: urlOf(p), checks: failed.map(c => c.group + ' ' + c.label).join(' · '),
+        note: nr.n || 'No note yet', noteColor: nr.n ? '#212120' : '#EE1C26', when: this.ago(latest), _at: latest });
+    }));
+    failNotes.sort((a, b) => (b._at || '').localeCompare(a._at || ''));
+    const hotPages = Object.entries(failByPage).sort((a, b) => b[1] - a[1]).slice(0, 6).map(([id, n]) => { const p = s.pages.find(x => x.id === id); return { page: p.page, url: urlOf(p), fails: n }; });
+
+    const kpis = [
+      { label: 'DAYS REMAINING', value: days === null ? '—' : Math.max(days, 0), sub: dl ? 'UAT closes ' + dl.toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' }) : '', color: days !== null && days <= 3 ? '#EE1C26' : '#212120' },
+      { label: 'TOTAL CASES', value: O.total.toLocaleString(), sub: s.pages.length + ' pages × ' + cfg.checks.length + ' checks × ' + testers.length + ' testers', color: '#212120' },
+      { label: 'REVIEWED', value: O.reviewed.toLocaleString(), sub: this.pct(O.reviewed, O.total) + '% of all cases', color: '#212120' },
+      { label: 'PASSED', value: O.passed.toLocaleString(), sub: this.pct(O.passed, O.reviewed || 1) + '% of reviewed', color: '#007396' },
+      { label: 'OPEN ISSUES', value: openDev + openContent, sub: openDev + ' dev · ' + openContent + ' content', color: openDev + openContent ? '#EE1C26' : '#212120' }
+    ];
+
+    // issues
+    const log = s.tab === 'content' ? 'content' : 'dev';
+    const list = s[log];
+    const isOpen = r => r.Status !== 'Complete' && r.Status !== 'Deferred';
+    const filters = ['Open', 'All'].concat(cfg.issueStatuses || []);
+    const statusLook = st => st === 'Complete' ? ['rgba(0,115,150,0.12)', '#00607D'] : st === 'Ready to Retest' ? ['#FFF6D9', '#212120'] : st === 'Deferred' ? ['#E6EDEE', '#4C5864'] : st === 'Reported' ? ['#FEEBE3', '#212120'] : ['#fff', '#212120'];
+    const shown = list.filter(r => s.issueFilter === 'All' ? true : s.issueFilter === 'Open' ? isOpen(r) : r.Status === s.issueFilter)
+      .slice().sort((a, b) => (+b.Number || 1e9) - (+a.Number || 1e9));
+    const issue = {
+      eyebrow: log === 'dev' ? 'DEVELOPMENT LOG' : 'CONTENT LOG',
+      title: log === 'dev' ? 'Dev Updates.' : 'Content Updates.',
+      blurb: log === 'dev' ? 'Anything broken, not working as intended, or showing an error. Link the Jira ticket once one exists.' : 'Copy, asset, link and translation changes that function correctly but need updating.',
+      isDev: log === 'dev', isContent: log === 'content',
+      formCols: 'minmax(0,1fr) minmax(0,2fr) 200px auto',
+      form: s.form,
+      onPage: e => { const v = e.target.value; this.setState(st => ({ form: { ...st.form, Page: v } })); },
+      onDesc: e => { const v = e.target.value; this.setState(st => ({ form: { ...st.form, Description: v } })); },
+      onType: e => { const v = e.target.value; this.setState(st => ({ form: { ...st.form, Type: v } })); },
+      onJira: e => { const v = e.target.value; this.setState(st => ({ form: { ...st.form, Jira: v } })); },
+      onAdd: () => this.addIssue(log),
+      addDisabled: !t || !s.form.Page || !s.form.Description.trim(),
+      addBg: !t || !s.form.Page || !s.form.Description.trim() ? '#B9C4C8' : '#EE1C26',
+      cols: log === 'dev' ? '48px 200px 150px minmax(0,2fr) 160px 170px minmax(0,1fr)' : '48px 200px 150px minmax(0,2fr) 110px 170px minmax(0,1fr)',
+      extraHead: log === 'dev' ? 'JIRA' : 'TYPE',
+      statusChips: filters.map(f => ({ label: f + (f === 'Open' ? ' (' + list.filter(isOpen).length + ')' : f === 'All' ? ' (' + list.length + ')' : ''), bg: s.issueFilter === f ? '#212120' : '#fff', fg: s.issueFilter === f ? '#fff' : '#212120', border: s.issueFilter === f ? '#212120' : 'rgba(33,33,32,0.14)', onClick: () => this.setState({ issueFilter: f }) })),
+      rows: shown.map(r => {
+        const k = log + ':' + r.Number;
+        const lk = statusLook(r.Status);
+        return {
+          num: r.Number, page: r.Page, reporter: r.Reporter, desc: r.Description,
+          extra: log === 'dev' ? (r['Jira Link'] || '—') : (r.Type || '—'),
+          status: r.Status || 'Reported', statusBg: lk[0], statusFg: lk[1], bg: r._temp ? '#FFFBF9' : '#fff',
+          notes: s.issueNoteDrafts[k] !== undefined ? s.issueNoteDrafts[k] : (r.Notes || ''),
+          onStatus: e => { if (!r._temp) this.updateIssue(log, r.Number, { Status: e.target.value }); },
+          onNotes: e => { const v = e.target.value; this.setState(st => ({ issueNoteDrafts: { ...st.issueNoteDrafts, [k]: v } })); },
+          onNotesBlur: () => { const v = this.state.issueNoteDrafts[k]; if (v !== undefined && v !== (r.Notes || '') && !r._temp) this.updateIssue(log, r.Number, { Notes: v }); }
+        };
+      }),
+      empty: shown.length === 0,
+      emptyLabel: list.length ? 'Nothing matches this filter.' : 'No issues logged yet. Use the form above to add the first.'
+    };
+
+    return {
+      siteUrl: site || '#', siteHost: site.replace(/^https?:\/\//, ''),
+      daysLeft: days === null ? '—' : Math.max(days, 0), daysLabel: days === 1 ? 'DAY LEFT' : 'DAYS LEFT',
+      syncDot: sy[0], syncLabel: sy[1], syncAnim: sy[2], syncTitle: s.lastSync ? 'Last synced ' + s.lastSync.toLocaleTimeString() : '',
+      tester: t, testerOpts: testers, onTester: e => this.setTester(e.target.value),
+      testerButtons: testers.map(n => ({ name: n, onClick: () => this.setTester(n) })),
+      tabs,
+      demo: s.sync === 'demo', hasError: !!s.error, error: s.error,
+      needTester: !t && !!s.cfg,
+      showTest: !!t && s.tab === 'test', showDash: !!t && s.tab === 'dash', showIssues: !!t && (s.tab === 'dev' || s.tab === 'content'),
+      my: { ...my, pctCss: this.css(my.reviewed, my.total), pctLabel: this.pct(my.reviewed, my.total) + '%' },
+      q: s.q, onQ: e => this.setState({ q: e.target.value }),
+      onToggleOpen: () => this.setState({ onlyOpen: !s.onlyOpen }),
+      openLabel: s.onlyOpen ? 'SHOWING TO-DO' : 'SHOW TO-DO ONLY',
+      openBg: s.onlyOpen ? '#212120' : '#fff', openFg: s.onlyOpen ? '#fff' : '#212120', openBorder: s.onlyOpen ? '#212120' : 'rgba(33,33,32,0.18)',
+      sectionChips,
+      gridCols: 'minmax(260px,320px) repeat(' + cfg.checks.length + ', 84px) minmax(240px,1fr)',
+      gridMin: (300 + cfg.checks.length * 84 + 260) + 'px',
+      groupHeads: heads,
+      checkHeads: cfg.checks.map((c, i) => ({ label: c.label, edge: edgeFor(i) })),
+      groups, noRows: visible.length === 0 && s.pages.length > 0,
+      kpis,
+      overall: { ...O, left: O.total - O.reviewed, pctLabel: this.pct(O.reviewed, O.total) + '%', passCss: this.css(O.passed, O.total), failCss: this.css(O.failed, O.total), naCss: this.css(O.na, O.total) },
+      testerRows, sectionRows, hotPages, noHot: hotPages.length === 0,
+      failNotes: failNotes.slice(0, 40), noFailNotes: failNotes.length === 0,
+      issue, pageOpts: s.pages.map(p => p.page), contentTypes: cfg.contentTypes || [], issueStatuses: cfg.issueStatuses || []
+    };
+  }
+}
+</script>
+</body>
+</html>
