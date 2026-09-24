@@ -5,7 +5,7 @@ window.UAT_CONFIG = {
 
   // Paste the Web App URL from Apps Script (Deploy → New deployment → Web app).
   // Leave empty to run in demo mode: results stay in the current browser only.
-  appsScriptUrl: 'https://script.google.com/macros/s/AKfycbxjXS9cTjXh5jUemAU7H8AYlle4VhcgnzprNPfS8tS3-20io9w_CPSH3rCO_ib6AVQHOA/exec',
+  appsScriptUrl: 'https://script.google.com/macros/s/AKfycbz0R6QCVFcXfQdGHIsS8xxCVc8IAn3ZnFKFi357JAQq8WeqsmV1ByrQvVZq5gqpjVhB/exec',
 
   // Site under test. Page paths in pages.csv are appended to this.
   siteUrl: 'https://live.ajibio.com',
